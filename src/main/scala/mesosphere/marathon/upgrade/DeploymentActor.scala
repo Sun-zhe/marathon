@@ -45,10 +45,6 @@ private class DeploymentActor(
     self ! NextStep
   }
 
-  override def postStop(): Unit = {
-    deploymentManager ! DeploymentFinished(plan)
-  }
-
   def receive: Receive = {
     case NextStep if steps.hasNext =>
       val step = steps.next()
@@ -64,6 +60,7 @@ private class DeploymentActor(
     case NextStep =>
       // no more steps, we're done
       receiver ! DeploymentFinished(plan)
+      deploymentManager ! DeploymentFinished(plan)
       context.stop(self)
 
     case Cancel(t) =>
